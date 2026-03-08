@@ -141,13 +141,16 @@
     };
 
     // 5. FUNCIÓN DEL REPORTE (La parte que te faltaba)
+    // Importamos 'deleteDoc' y 'doc' para poder borrar
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
     window.loadAdminReport = async () => {
         const passAdmin = prompt("Introduce la clave de Jefe:");
-        if (passAdmin !== "0812") return alert("Clave incorrecta");
+        if (passAdmin !== "2026") return alert("Clave incorrecta"); // Usa tu nueva clave aquí
     
         show('section-admin');
         const display = document.getElementById('admin-data');
-        display.innerHTML = "<p>Calculando totales por día...</p>";
+        display.innerHTML = "<p>Cargando registros...</p>";
         
         try {
             const q = query(collection(db, "ventas"), orderBy("fecha", "desc"));
@@ -155,46 +158,56 @@
             
             let html = "";
             let ultimaFecha = "";
-            let totalDia = 0; // Para sumar el dinero del día
+            let totalDia = 0;
     
-            querySnapshot.forEach((doc) => {
-                const data = doc.data();
+            querySnapshot.forEach((documento) => {
+                const data = documento.data();
+                const id = documento.id; // El ID único de Firebase para esta venta
                 const fechaDia = data.fecha.split(',')[0]; 
-                const precio = data.precio || 0; // Si no tiene precio, pone 0
+                const precio = data.precio || 0;
     
-                // Si cambia el día, imprimimos el total del día anterior y el nuevo encabezado
                 if (fechaDia !== ultimaFecha) {
                     if (ultimaFecha !== "") {
                         html += `<div style="text-align:right; color:#00ff00; font-weight:bold; margin-bottom:10px;">TOTAL DÍA: $${totalDia}</div><hr>`;
                     }
                     html += `<div style="background:#444; padding:5px; margin-top:15px; border-radius:3px; font-weight:bold; color:#ff4444;">📅 FECHA: ${fechaDia}</div>`;
                     ultimaFecha = fechaDia;
-                    totalDia = 0; // Reiniciamos la suma para el nuevo día
+                    totalDia = 0;
                 }
     
-                totalDia += precio; // Sumamos el precio al total del día
+                totalDia += precio;
                 
-                html += `<div style='padding:5px; border-bottom:1px solid #333; font-size:14px;'>
-                            🛒 ${data.item} <span style="float:right;">$${precio}</span>
+                // Aquí añadimos el botón de eliminar (basurita roja 🗑️)
+                html += `<div style='padding:8px; border-bottom:1px solid #333; font-size:14px; display:flex; justify-content:space-between; align-items:center;'>
+                            <span>🛒 ${data.item} - $${precio}</span>
+                            <button onclick="deleteSale('${id}')" style="width:30px; padding:2px; background:red; font-size:10px; margin:0;">X</button>
                          </div>`;
             });
     
-            // Mostrar el total del último día de la lista
             if (ultimaFecha !== "") {
                 html += `<div style="text-align:right; color:#00ff00; font-weight:bold; margin-top:5px;">TOTAL DÍA: $${totalDia}</div>`;
             }
     
-            if(querySnapshot.empty) html = "<p>No hay ventas registradas.</p>";
-            
-            display.innerHTML = html;
-        } catch (e) {
-            display.innerHTML = "Error al cargar los datos.";
-            console.error(e);
+            display.innerHTML = html || "<p>No hay ventas.</p>";
+        } catch (e) { console.error(e); }
+    };
+    
+    // 2. FUNCIÓN PARA BORRAR (Añádela debajo de la anterior)
+    window.deleteSale = async (id) => {
+        if (confirm("¿Seguro que quieres borrar esta venta?")) {
+            try {
+                await deleteDoc(doc(db, "ventas", id));
+                alert("Venta eliminada");
+                loadAdminReport(); // Recargamos el reporte para que ya no aparezca
+            } catch (e) {
+                alert("Error al borrar");
+            }
         }
     };
     </script>
 </body>
 </html>
+
 
 
 
