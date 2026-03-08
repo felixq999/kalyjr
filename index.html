@@ -129,35 +129,48 @@
 
     // 5. FUNCIÓN DEL REPORTE (La parte que te faltaba)
     window.loadAdminReport = async () => {
-        const passAdmin = prompt("Introduce la clave de Jefe:");
-        if (passAdmin !== "9999") return alert("Clave incorrecta");
+    const passAdmin = prompt("Introduce la clave de Jefe:");
+    if (passAdmin !== "9999") return alert("Clave incorrecta");
 
-        show('section-admin');
-        const display = document.getElementById('admin-data');
-        display.innerHTML = "<p>Cargando datos de la nube...</p>";
+    show('section-admin');
+    const display = document.getElementById('admin-data');
+    display.innerHTML = "<p>Organizando por fechas...</p>";
+    
+    try {
+        const q = query(collection(db, "ventas"), orderBy("fecha", "desc"));
+        const querySnapshot = await getDocs(q);
         
-        try {
-            // Traemos las ventas ordenadas por fecha
-            const q = query(collection(db, "ventas"), orderBy("fecha", "desc"));
-            const querySnapshot = await getDocs(q);
-            
-            let html = "<strong>VENTAS RECIENTES:</strong><hr>";
-            querySnapshot.forEach((doc) => {
-                const data = doc.data();
-                html += `<div style='margin-bottom:5px;'>🔸 ${data.item} <br> <small>${data.fecha}</small></div>`;
-            });
+        let html = "";
+        let ultimaFecha = "";
 
-            if(querySnapshot.empty) html += "<p>No hay ventas registradas.</p>";
-            
-            display.innerHTML = html;
-        } catch (e) {
-            display.innerHTML = "Error al conectar con Firebase.";
-            console.error(e);
-        }
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            // Extraemos solo la parte de la fecha (DD/MM/AAAA) de la cadena completa
+            const fechaDia = data.fecha.split(',')[0]; 
+
+            // Si el día cambia, ponemos un separador visual
+            if (fechaDia !== ultimaFecha) {
+                html += `<div style="background:#444; padding:5px; margin-top:15px; border-radius:3px; font-weight:bold; color:#ff4444;">📅 Día: ${fechaDia}</div>`;
+                ultimaFecha = fechaDia;
+            }
+
+            html += `<div style='padding:5px; border-bottom:1px solid #333; font-size:14px;'>
+                        🛒 ${data.item} <span style="float:right; color:#888; font-size:11px;">${data.fecha.split(',')[1] || ''}</span>
+                     </div>`;
+        });
+
+        if(querySnapshot.empty) html = "<p>No hay registros aún.</p>";
+        
+        display.innerHTML = html;
+    } catch (e) {
+        display.innerHTML = "Error al cargar los datos.";
+        console.error(e);
+    }
     };
     </script>
 </body>
 </html>
+
 
 
 
