@@ -39,18 +39,18 @@
     <div id="section-sales" class="container hidden">
         <h2>REGISTRAR VENTA</h2>
         <select id="prod-name">
-            <option value="Vendas-15">Vendas ($15, registrar 2 por par)</option>
-            <option value="Aguac-10">Agua Chica ($10)</option>
-            <option value="Aguag-20">Agua Grande ($20)</option>
-            <option value="Gatorade-15">Gatorade Chico ($15)</option>
-            <option value="Poweradem-25">Powerade Mediano ($25)</option>
-            <option value="Poweradeg-35">Powerade Grande ($35)</option>
-            <option value="Prime-30">Prime ($30)</option>
-            <option value="Oikos-50">Oikos proteina ($50)</option>
-            <option value="Orgain-40">Orgain proteina ($40)</option>
-            <option value="Propel-30">Propel ($30)</option>
-            <option value="Suero-35">Electrolit ($35)</option>
-            <option value="Camiseta-300">Camiseta ($300)</option>
+            <option value="Vendas|15">Vendas ($15, registrar 2 por par)</option>
+            <option value="Agua Chica|10">Agua Chica ($10)</option>
+            <option value="Agua Grande|20">Agua Grande ($20)</option>
+            <option value="Gatorade Chico|15">Gatorade Chico ($15)</option>
+            <option value="Powerade Mediano|25">Powerade Mediano ($25)</option>
+            <option value="Powerade Grande|35">Powerade Grande ($35)</option>
+            <option value="Prime|30">Prime ($30)</option>
+            <option value="Oikos proteina|50">Oikos proteina ($50)</option>
+            <option value="Orgain proteina|40">Orgain proteina ($40)</option>
+            <option value="Propel|30">Propel ($30)</option>
+            <option value="Electrolit|35">Electrolit ($35)</option>
+            <option value="Camiseta|300">Camiseta ($300)</option>
         </select>
         <button id="btn-save-sale">GUARDAR VENTA</button>
         <button class="btn-alt" onclick="show('section-menu')">Volver</button>
@@ -109,8 +109,8 @@
 
     // 4. GUARDAR DATOS
     document.getElementById('btn-save-sale').onclick = async () => {
-        const seleccion = document.getElementById('prod-name').value; // Trae "Vendas-10"
-        const partes = seleccion.split('-'); // Lo divide en ["Vendas", "10"]
+        const seleccion = document.getElementById('prod-name').value; // Trae "Vendas|15"
+        const partes = seleccion.split('|'); // Lo divide en ["Vendas", "15"]
         const nombreProd = partes[0];
         const precioProd = Number(partes[1]);
     
@@ -206,13 +206,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
