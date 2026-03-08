@@ -55,70 +55,107 @@
         <button class="btn-alt" onclick="show('section-menu')">Volver</button>
     </div>
 
+    <div id="section-admin" class="container hidden" style="max-width: 600px;">
+        <h2>📊 REPORTE DE HOY</h2>
+        <div id="admin-data" style="text-align: left; background: #222; padding: 10px; border-radius: 5px;">
+            <p>Cargando datos...</p>
+        </div>
+        <button class="btn-alt" onclick="show('section-menu')">Volver</button>
+    </div>
+
     <script type="module">
-        // 1. IMPORTAR FIREBASE
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    // 1. IMPORTAR LIBRERÍAS (Asegúrate de incluir 'getDocs', 'query' y 'orderBy')
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // 2. CONFIGURACIÓN (SUSTITUYE ESTO POR TUS DATOS DE FIREBASE)
-        const firebaseConfig = {
-            apiKey: "AIzaSyD-oWfBw6aCb9s63sENTQAjlfpXfo_L5w4",
-            authDomain: "kalyjr.firebaseapp.com",
-            projectId: "kalyjr",
-            storageBucket: "kalyjr.firebasestorage.app",
-            messagingSenderId: "553377270177",
-            appId: "1:553377270177:web:61f60af35097a7016163e0"
-        };
+    // 2. CONFIGURACIÓN (¡PON TUS LLAVES AQUÍ OTRA VEZ!)
+    const firebaseConfig = {
+        apiKey: "AIzaSyD-oWfBw6aCb9s63sENTQAjlfpXfo_L5w4",
+        authDomain: "kalyjr.firebaseapp.com",
+        projectId: "kalyjr",
+        storageBucket: "kalyjr.firebasestorage.app",
+        messagingSenderId: "553377270177",
+        appId: "1:553377270177:web:61f60af35097a7016163e0"
+    };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-        // 3. LÓGICA DE NAVEGACIÓN
-        window.show = (id) => {
-            document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
-            document.getElementById(id).classList.remove('hidden');
-        };
+    // 3. NAVEGACIÓN
+    window.show = (id) => {
+        document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+    };
 
-        window.checkLogin = () => {
-            const u = document.getElementById('user').value;
-            const p = document.getElementById('pass').value;
-            // Aquí puedes definir tus propios usuarios/contraseñas
-            if(u === "admin" && p === "box123") {
-                show('section-menu');
-            } else {
-                alert("Acceso denegado");
-            }
-        };
+    window.checkLogin = () => {
+        const u = document.getElementById('user').value;
+        const p = document.getElementById('pass').value;
+        if(u === "admin" && p === "box123") {
+            show('section-menu');
+        } else {
+            alert("Acceso denegado");
+        }
+    };
 
-        window.logout = () => location.reload();
+    window.logout = () => location.reload();
 
-        // 4. GUARDAR EN FIREBASE
-        document.getElementById('btn-save-sale').onclick = async () => {
-            const item = document.getElementById('prod-name').value;
-            try {
-                await addDoc(collection(db, "ventas"), {
-                    item: item,
-                    fecha: new Date().toISOString()
-                });
-                alert("Venta registrada con éxito");
-                show('section-menu');
-            } catch (e) { alert("Error al guardar"); }
-        };
+    // 4. GUARDAR DATOS
+    document.getElementById('btn-save-sale').onclick = async () => {
+        const item = document.getElementById('prod-name').value;
+        try {
+            await addDoc(collection(db, "ventas"), {
+                item: item,
+                fecha: new Date().toLocaleString() // Fecha más legible
+            });
+            alert("Venta registrada con éxito");
+            show('section-menu');
+        } catch (e) { alert("Error al guardar"); }
+    };
 
-        document.getElementById('btn-save-member').onclick = async () => {
-            const nombre = document.getElementById('member-name').value;
-            const monto = document.getElementById('member-pay').value;
-            if(!nombre || !monto) return alert("Llena todos los campos");
-            try {
-                await addDoc(collection(db, "inscripciones"), {
-                    nombre: nombre,
-                    pago: monto,
-                    fecha: new Date().toISOString()
-                });
-                alert("Socio registrado con éxito");
-                show('section-menu');
-            } catch (e) { alert("Error al guardar"); }
-        };
+    document.getElementById('btn-save-member').onclick = async () => {
+        const nombre = document.getElementById('member-name').value;
+        const monto = document.getElementById('member-pay').value;
+        if(!nombre || !monto) return alert("Llena todos los campos");
+        try {
+            await addDoc(collection(db, "inscripciones"), {
+                nombre: nombre,
+                pago: monto,
+                fecha: new Date().toLocaleString()
+            });
+            alert("Socio registrado con éxito");
+            show('section-menu');
+        } catch (e) { alert("Error al guardar"); }
+    };
+
+    // 5. FUNCIÓN DEL REPORTE (La parte que te faltaba)
+    window.loadAdminReport = async () => {
+        const passAdmin = prompt("Introduce la clave de Jefe:");
+        if (passAdmin !== "9999") return alert("Clave incorrecta");
+
+        show('section-admin');
+        const display = document.getElementById('admin-data');
+        display.innerHTML = "<p>Cargando datos de la nube...</p>";
+        
+        try {
+            // Traemos las ventas ordenadas por fecha
+            const q = query(collection(db, "ventas"), orderBy("fecha", "desc"));
+            const querySnapshot = await getDocs(q);
+            
+            let html = "<strong>VENTAS RECIENTES:</strong><hr>";
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                html += `<div style='margin-bottom:5px;'>🔸 ${data.item} <br> <small>${data.fecha}</small></div>`;
+            });
+
+            if(querySnapshot.empty) html += "<p>No hay ventas registradas.</p>";
+            
+            display.innerHTML = html;
+        } catch (e) {
+            display.innerHTML = "Error al conectar con Firebase.";
+            console.error(e);
+        }
+    };
     </script>
 </body>
 </html>
+
