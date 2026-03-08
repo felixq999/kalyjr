@@ -142,47 +142,60 @@
 
     // 5. FUNCIÓN DEL REPORTE (La parte que te faltaba)
     window.loadAdminReport = async () => {
-    const passAdmin = prompt("Introduce la clave de Jefe:");
-    if (passAdmin !== "9999") return alert("Clave incorrecta");
-
-    show('section-admin');
-    const display = document.getElementById('admin-data');
-    display.innerHTML = "<p>Organizando por fechas...</p>";
+        const passAdmin = prompt("Introduce la clave de Jefe:");
+        if (passAdmin !== "0812") return alert("Clave incorrecta");
     
-    try {
-        const q = query(collection(db, "ventas"), orderBy("fecha", "desc"));
-        const querySnapshot = await getDocs(q);
+        show('section-admin');
+        const display = document.getElementById('admin-data');
+        display.innerHTML = "<p>Calculando totales por día...</p>";
         
-        let html = "";
-        let ultimaFecha = "";
-
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            // Extraemos solo la parte de la fecha (DD/MM/AAAA) de la cadena completa
-            const fechaDia = data.fecha.split(',')[0]; 
-
-            // Si el día cambia, ponemos un separador visual
-            if (fechaDia !== ultimaFecha) {
-                html += `<div style="background:#444; padding:5px; margin-top:15px; border-radius:3px; font-weight:bold; color:#ff4444;">📅 Día: ${fechaDia}</div>`;
-                ultimaFecha = fechaDia;
+        try {
+            const q = query(collection(db, "ventas"), orderBy("fecha", "desc"));
+            const querySnapshot = await getDocs(q);
+            
+            let html = "";
+            let ultimaFecha = "";
+            let totalDia = 0; // Para sumar el dinero del día
+    
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                const fechaDia = data.fecha.split(',')[0]; 
+                const precio = data.precio || 0; // Si no tiene precio, pone 0
+    
+                // Si cambia el día, imprimimos el total del día anterior y el nuevo encabezado
+                if (fechaDia !== ultimaFecha) {
+                    if (ultimaFecha !== "") {
+                        html += `<div style="text-align:right; color:#00ff00; font-weight:bold; margin-bottom:10px;">TOTAL DÍA: $${totalDia}</div><hr>`;
+                    }
+                    html += `<div style="background:#444; padding:5px; margin-top:15px; border-radius:3px; font-weight:bold; color:#ff4444;">📅 FECHA: ${fechaDia}</div>`;
+                    ultimaFecha = fechaDia;
+                    totalDia = 0; // Reiniciamos la suma para el nuevo día
+                }
+    
+                totalDia += precio; // Sumamos el precio al total del día
+                
+                html += `<div style='padding:5px; border-bottom:1px solid #333; font-size:14px;'>
+                            🛒 ${data.item} <span style="float:right;">$${precio}</span>
+                         </div>`;
+            });
+    
+            // Mostrar el total del último día de la lista
+            if (ultimaFecha !== "") {
+                html += `<div style="text-align:right; color:#00ff00; font-weight:bold; margin-top:5px;">TOTAL DÍA: $${totalDia}</div>`;
             }
-
-            html += `<div style='padding:5px; border-bottom:1px solid #333; font-size:14px;'>
-                        🛒 ${data.item} <span style="float:right; color:#888; font-size:11px;">${data.fecha.split(',')[1] || ''}</span>
-                     </div>`;
-        });
-
-        if(querySnapshot.empty) html = "<p>No hay registros aún.</p>";
-        
-        display.innerHTML = html;
-    } catch (e) {
-        display.innerHTML = "Error al cargar los datos.";
-        console.error(e);
-    }
+    
+            if(querySnapshot.empty) html = "<p>No hay ventas registradas.</p>";
+            
+            display.innerHTML = html;
+        } catch (e) {
+            display.innerHTML = "Error al cargar los datos.";
+            console.error(e);
+        }
     };
     </script>
 </body>
 </html>
+
 
 
 
