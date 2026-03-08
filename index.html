@@ -1,43 +1,124 @@
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boxing Gym Staff System</title>
+    <style>
+        :root { --red: #d40000; --dark: #121212; --gray: #1e1e1e; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--dark); color: white; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { background: var(--gray); padding: 30px; border-radius: 15px; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; }
+        h2 { border-bottom: 2px solid var(--red); padding-bottom: 10px; margin-bottom: 20px; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border-radius: 5px; border: none; background: #333; color: white; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: var(--red); color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        button:hover { background: #b00000; }
+        .hidden { display: none; }
+        .menu-grid { display: grid; gap: 15px; margin-top: 20px; }
+        .btn-alt { background: #444; }
+    </style>
+</head>
+<body>
 
-  // CONFIGURACIÓN DE TU PROYECTO (Pega lo que copiaste en el Paso 2)
-  const firebaseConfig = {
-    apiKey: "AIzaSyD-oWfBw6aCb9s63sENTQAjlfpXfo_L5w4",
-    authDomain: "kalyjr.firebaseapp.com",
-    projectId: "kalyjr",
-    storageBucket: "kalyjr.firebasestorage.app",
-    messagingSenderId: "553377270177",
-    appId: "1:553377270177:web:61f60af35097a7016163e0"
-  };
+    <div id="section-login" class="container">
+        <h2>🥊 STAFF LOGIN</h2>
+        <input type="text" id="user" placeholder="Usuario">
+        <input type="password" id="pass" placeholder="Contraseña">
+        <button onclick="checkLogin()">ENTRAR</button>
+    </div>
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+    <div id="section-menu" class="container hidden">
+        <h2>MENÚ PRINCIPAL</h2>
+        <div class="menu-grid">
+            <button onclick="show('section-sales')">🛒 REGISTRAR VENTA</button>
+            <button onclick="show('section-enroll')">👤 NUEVA INSCRIPCIÓN</button>
+            <button class="btn-alt" onclick="logout()">Cerrar Sesión</button>
+        </div>
+    </div>
 
-  // Función para guardar Venta en la base de datos
-  window.addSale = async () => {
-    const item = document.getElementById('product-select').value;
-    try {
-      await addDoc(collection(db, "ventas"), {
-        producto: item,
-        fecha: new Date().toLocaleString()
-      });
-      alert("Venta guardada en la nube!");
-    } catch (e) { console.error("Error: ", e); }
-  }
+    <div id="section-sales" class="container hidden">
+        <h2>REGISTRAR VENTA</h2>
+        <select id="prod-name">
+            <option value="Vendas">Vendas ($10)</option>
+            <option value="Agua">Agua ($2)</option>
+            <option value="Guantes">Guantes ($50)</option>
+            <option value="Cuerda">Cuerda ($15)</option>
+        </select>
+        <button id="btn-save-sale">GUARDAR VENTA</button>
+        <button class="btn-alt" onclick="show('section-menu')">Volver</button>
+    </div>
 
-  // Función para guardar Inscripción
-  window.addMember = async () => {
-    const name = document.getElementById('member-name').value;
-    const pay = document.getElementById('payment').value;
-    try {
-      await addDoc(collection(db, "inscripciones"), {
-        nombre: name,
-        pago: pay,
-        fecha: new Date().toLocaleString()
-      });
-      alert("Socio registrado en la nube!");
-    } catch (e) { console.error("Error: ", e); }
-  }
-</script>
+    <div id="section-enroll" class="container hidden">
+        <h2>INSCRIPCIÓN</h2>
+        <input type="text" id="member-name" placeholder="Nombre completo del socio">
+        <input type="number" id="member-pay" placeholder="Monto del pago ($)">
+        <button id="btn-save-member">REGISTRAR SOCIO</button>
+        <button class="btn-alt" onclick="show('section-menu')">Volver</button>
+    </div>
+
+    <script type="module">
+        // 1. IMPORTAR FIREBASE
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // 2. CONFIGURACIÓN (SUSTITUYE ESTO POR TUS DATOS DE FIREBASE)
+        const firebaseConfig = {
+            apiKey: "AIzaSyD-oWfBw6aCb9s63sENTQAjlfpXfo_L5w4",
+            authDomain: "kalyjr.firebaseapp.com",
+            projectId: "kalyjr",
+            storageBucket: "kalyjr.firebasestorage.app",
+            messagingSenderId: "553377270177",
+            appId: "1:553377270177:web:61f60af35097a7016163e0"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // 3. LÓGICA DE NAVEGACIÓN
+        window.show = (id) => {
+            document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+        };
+
+        window.checkLogin = () => {
+            const u = document.getElementById('user').value;
+            const p = document.getElementById('pass').value;
+            // Aquí puedes definir tus propios usuarios/contraseñas
+            if(u === "admin" && p === "box123") {
+                show('section-menu');
+            } else {
+                alert("Acceso denegado");
+            }
+        };
+
+        window.logout = () => location.reload();
+
+        // 4. GUARDAR EN FIREBASE
+        document.getElementById('btn-save-sale').onclick = async () => {
+            const item = document.getElementById('prod-name').value;
+            try {
+                await addDoc(collection(db, "ventas"), {
+                    item: item,
+                    fecha: new Date().toISOString()
+                });
+                alert("Venta registrada con éxito");
+                show('section-menu');
+            } catch (e) { alert("Error al guardar"); }
+        };
+
+        document.getElementById('btn-save-member').onclick = async () => {
+            const nombre = document.getElementById('member-name').value;
+            const monto = document.getElementById('member-pay').value;
+            if(!nombre || !monto) return alert("Llena todos los campos");
+            try {
+                await addDoc(collection(db, "inscripciones"), {
+                    nombre: nombre,
+                    pago: monto,
+                    fecha: new Date().toISOString()
+                });
+                alert("Socio registrado con éxito");
+                show('section-menu');
+            } catch (e) { alert("Error al guardar"); }
+        };
+    </script>
+</body>
+</html>
