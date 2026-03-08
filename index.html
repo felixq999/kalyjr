@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Boxing Gym Manager</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #1a1a1a; color: white; text-align: center; }
+        .container { max-width: 400px; margin: 50px auto; padding: 20px; background: #333; border-radius: 10px; }
+        input { width: 90%; padding: 10px; margin: 10px 0; }
+        button { width: 100%; padding: 10px; background: #d40000; color: white; border: none; cursor: pointer; font-weight: bold; }
+        .hidden { display: none; }
+        .menu-btn { margin: 10px 0; background: #444; }
+        table { width: 100%; margin-top: 20px; border-collapse: collapse; }
+        th, td { border: 1px solid #555; padding: 10px; }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen" class="container">
+        <h2>BOXING CLUB LOGIN</h2>
+        <input type="text" id="user" placeholder="Usuario (admin)">
+        <input type="password" id="pass" placeholder="Contraseña (1234)">
+        <button onclick="login()">ENTRAR</button>
+    </div>
+
+    <div id="main-menu" class="container hidden">
+        <h2>Panel de Staff</h2>
+        <button class="menu-btn" onclick="showSection('sales-section')">?? VENTAS</button>
+        <button class="menu-btn" onclick="showSection('enroll-section')">?? INSCRIPCIONES</button>
+        <button style="background:gray; margin-top:20px;" onclick="logout()">Salir</button>
+    </div>
+
+    <div id="sales-section" class="container hidden">
+        <h3>Registrar Venta</h3>
+        <select id="product-select" style="width: 100%; padding: 10px;">
+            <option value="Vendas - $10">Vendas ($10)</option>
+            <option value="Agua - $2">Agua ($2)</option>
+            <option value="Guantes - $50">Guantes ($50)</option>
+        </select>
+        <button onclick="addSale()" style="margin-top:10px;">VENDER</button>
+        <div id="sales-log"></div>
+        <button class="menu-btn" onclick="showSection('main-menu')">Volver</button>
+    </div>
+
+    <div id="enroll-section" class="container hidden">
+        <h3>Nueva Inscripción</h3>
+        <input type="text" id="member-name" placeholder="Nombre del Socio">
+        <input type="number" id="payment" placeholder="Monto Pagado">
+        <button onclick="addMember()">REGISTRAR</button>
+        <table id="member-list">
+            <tr><th>Socio</th><th>Pago</th></tr>
+        </table>
+        <button class="menu-btn" onclick="showSection('main-menu')">Volver</button>
+    </div>
+
+    <script>
+        // Lógica simple de Login
+        function login() {
+            const u = document.getElementById('user').value;
+            const p = document.getElementById('pass').value;
+            if(u === "admin" && p === "1234") {
+                showSection('main-menu');
+            } else {
+                alert("Datos incorrectos. Intenta con admin / 1234");
+            }
+        }
+
+        function showSection(id) {
+            // Esconder todo
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('main-menu').classList.add('hidden');
+            document.getElementById('sales-section').classList.add('hidden');
+            document.getElementById('enroll-section').classList.add('hidden');
+            // Mostrar la elegida
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function addSale() {
+            const item = document.getElementById('product-select').value;
+            document.getElementById('sales-log').innerHTML += `<p>? Vendido: ${item}</p>`;
+        }
+
+        function addMember() {
+            const name = document.getElementById('member-name').value;
+            const pay = document.getElementById('payment').value;
+            if(name && pay) {
+                const table = document.getElementById('member-list');
+                table.innerHTML += `<tr><td>${name}</td><td>$${pay}</td></tr>`;
+            }
+        }
+
+        function logout() { location.reload(); }
+    </script>
+</body>
+</html>
