@@ -74,7 +74,7 @@
     <script type="module">
     // 1. IMPORTAR LIBRERÍAS (Asegúrate de incluir 'getDocs', 'query' y 'orderBy')
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, query, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     // 2. CONFIGURACIÓN (¡PON TUS LLAVES AQUÍ OTRA VEZ!)
     const firebaseConfig = {
@@ -207,6 +207,7 @@ import { getFirestore, collection, addDoc, getDocs, query, orderBy, deleteDoc, d
     </script>
 </body>
 </html>
+
 
 
 
