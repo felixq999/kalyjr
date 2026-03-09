@@ -1,60 +1,296 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enrollment Page</title>
+    <title>Boxing Gym Staff System</title>
+    <style>
+        :root { --red: #d40000; --dark: #121212; --gray: #1e1e1e; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--dark); color: white; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { background: var(--gray); padding: 30px; border-radius: 15px; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; }
+        h2 { border-bottom: 2px solid var(--red); padding-bottom: 10px; margin-bottom: 20px; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border-radius: 5px; border: none; background: #333; color: white; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: var(--red); color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        button:hover { background: #b00000; }
+        .hidden { display: none; }
+        .menu-grid { display: grid; gap: 15px; margin-top: 20px; }
+        .btn-alt { background: #444; }
+        .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; }
+        .admin-box { background: #222; padding: 15px; border-radius: 5px; max-height: 400px; overflow-y: auto; text-align: left; }
+        .admin-box h3 { color: var(--red); margin-top: 0; }
+        .total-box { background: #333; padding: 10px; border-radius: 5px; margin-top: 10px; color: #00ff00; font-weight: bold; }
+    </style>
 </head>
 <body>
-    <h1>Enrollment Form</h1>
-    <form>
-        <label for="name">Name:</label>
-        <input type="text" id="name" name="name" required>
 
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required>
+    <div id="section-login" class="container">
+        <h2>🥊 STAFF LOGIN</h2>
+        <input type="text" id="user" placeholder="Usuario">
+        <input type="password" id="pass" placeholder="Contraseña">
+        <button onclick="checkLogin()">ENTRAR</button>
+    </div>
 
-        <label for="payment-date">Payment Date:</label>
-        <input type="date" id="payment-date" name="payment-date" required>
+    <div id="section-menu" class="container hidden">
+        <h2>MENÚ PRINCIPAL</h2>
+        <div class="menu-grid">
+            <button onclick="show('section-sales')">🛒 REGISTRAR VENTA</button>
+            <button onclick="show('section-enroll')">👤 NUEVA INSCRIPCIÓN</button>
+            <button style="background:#222; border: 1px solid #555;" onclick="loadAdminReport()">📊 VER REPORTES</button>
+            <button class="btn-alt" onclick="logout()">Cerrar Sesión</button>
+        </div>
+    </div>
 
-        <label for="schedule">Schedule:</label>
-        <select id="schedule" name="schedule" required>
-            <option value="morning">Morning</option>
-            <option value="afternoon">Afternoon</option>
-            <option value="evening">Evening</option>
+    <div id="section-sales" class="container hidden">
+        <h2>REGISTRAR VENTA</h2>
+        <select id="prod-name">
+            <option value="Vendas|15">Vendas ($15, registrar 2 por par)</option>
+            <option value="Agua Chica|10">Agua Chica ($10)</option>
+            <option value="Agua Grande|20">Agua Grande ($20)</option>
+            <option value="Gatorade Chico|15">Gatorade Chico ($15)</option>
+            <option value="Powerade Mediano|25">Powerade Mediano ($25)</option>
+            <option value="Powerade Grande|35">Powerade Grande ($35)</option>
+            <option value="Prime|30">Prime ($30)</option>
+            <option value="Oikos proteina|50">Oikos proteina ($50)</option>
+            <option value="Orgain proteina|40">Orgain proteina ($40)</option>
+            <option value="Propel|30">Propel ($30)</option>
+            <option value="Electrolit|35">Electrolit ($35)</option>
+            <option value="Camiseta|300">Camiseta ($300)</option>
         </select>
+        <button id="btn-save-sale">GUARDAR VENTA</button>
+        <button class="btn-alt" onclick="show('section-menu')">Volver</button>
+    </div>
 
-        <label for="payment-method">Payment Method:</label>
-        <select id="payment-method" name="payment-method" required>
-            <option value="credit-card">Credit Card</option>
-            <option value="paypal">PayPal</option>
-            <option value="bank-transfer">Bank Transfer</option>
+    <div id="section-enroll" class="container hidden">
+        <h2>INSCRIPCIÓN</h2>
+        <input type="text" id="member-name" placeholder="Nombre completo del socio">
+        <input type="number" id="member-pay" placeholder="Monto del pago ($)">
+        <input type="date" id="payment-date" placeholder="Fecha de pago">
+        <select id="member-schedule">
+            <option value="">Seleccionar horario</option>
+            <option value="8-9am">8-9am</option>
+            <option value="9-10am">9-10am</option>
+            <option value="10-11am">10-11am</option>
+            <option value="5-6pm">5-6pm</option>
+            <option value="6-7pm">6-7pm</option>
+            <option value="7-8pm">7-8pm</option>
+            <option value="8-9pm">8-9pm</option>
+            <option value="9-10pm">9-10pm</option>
         </select>
+        <select id="payment-method">
+            <option value="">Seleccionar método de pago</option>
+            <option value="Efectivo">Efectivo</option>
+            <option value="Transferencia">Transferencia</option>
+        </select>
+        <button id="btn-save-member">REGISTRAR SOCIO</button>
+        <button class="btn-alt" onclick="show('section-menu')">Volver</button>
+    </div>
 
-        <input type="submit" value="Enroll">
-    </form>
+    <div id="section-admin" class="container hidden" style="max-width: 900px; width: 95%;">
+        <h2>📊 REPORTE DE HOY</h2>
+        <div class="admin-grid">
+            <div class="admin-box">
+                <h3>💳 VENTAS DE PRODUCTOS</h3>
+                <div id="admin-sales-data" style="min-height: 300px;"></div>
+            </div>
+            <div class="admin-box">
+                <h3>👤 INSCRIPCIONES DEL MES</h3>
+                <div id="admin-enroll-data" style="min-height: 300px;"></div>
+            </div>
+        </div>
+        <button class="btn-alt" onclick="show('section-menu')" style="margin-top:20px;">Volver al Menú</button>
+    </div>
 
-    <h2>Admin Reports</h2>
-    <section id="sales-report">
-        <h3>Sales Report</h3>
-        <p>Monthly Totals:</p>
-        <ul>
-            <li>January: $XXXX</li>
-            <li>February: $XXXX</li>
-            <li>March: $XXXX</li>
-            <!-- Add more months as necessary -->
-        </ul>
-    </section>
+    <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, query, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    <section id="enrollment-report">
-        <h3>Enrollment Report</h3>
-        <p>Monthly Totals:</p>
-        <ul>
-            <li>January: XX enrollments</li>
-            <li>February: XX enrollments</li>
-            <li>March: XX enrollments</li>
-            <!-- Add more months as necessary -->
-        </ul>
-    </section>
+    const firebaseConfig = {
+        apiKey: "AIzaSyD-oWfBw6aCb9s63sENTQAjlfpXfo_L5w4",
+        authDomain: "kalyjr.firebaseapp.com",
+        projectId: "kalyjr",
+        storageBucket: "kalyjr.firebasestorage.app",
+        messagingSenderId: "553377270177",
+        appId: "1:553377270177:web:61f60af35097a7016163e0"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.show = (id) => {
+        document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+    };
+
+    window.checkLogin = () => {
+        const u = document.getElementById('user').value;
+        const p = document.getElementById('pass').value;
+        if(u === "admin" && p === "box123") {
+            show('section-menu');
+        } else {
+            alert("Acceso denegado");
+        }
+    };
+
+    window.logout = () => location.reload();
+
+    document.getElementById('btn-save-sale').onclick = async () => {
+        const seleccion = document.getElementById('prod-name').value;
+        const partes = seleccion.split('|');
+        const nombreProd = partes[0];
+        const precioProd = Number(partes[1]);
+    
+        try {
+            await addDoc(collection(db, "ventas"), {
+                item: nombreProd,
+                precio: precioProd,
+                fecha: new Date().toLocaleString()
+            });
+            alert("Venta registrada: " + nombreProd + " por $" + precioProd);
+            show('section-menu');
+        } catch (e) { alert("Error al guardar"); }
+    };
+
+    document.getElementById('btn-save-member').onclick = async () => {
+        const nombre = document.getElementById('member-name').value;
+        const monto = document.getElementById('member-pay').value;
+        const fecha = document.getElementById('payment-date').value;
+        const horario = document.getElementById('member-schedule').value;
+        const metodo = document.getElementById('payment-method').value;
+        
+        if(!nombre || !monto || !fecha || !horario || !metodo) {
+            return alert("Llena todos los campos");
+        }
+        
+        try {
+            await addDoc(collection(db, "inscripciones"), {
+                nombre: nombre,
+                pago: Number(monto),
+                fechaPago: fecha,
+                horario: horario,
+                metodo: metodo,
+                fechaRegistro: new Date().toLocaleString()
+            });
+            alert("Socio registrado con éxito");
+            document.getElementById('member-name').value = '';
+            document.getElementById('member-pay').value = '';
+            document.getElementById('payment-date').value = '';
+            document.getElementById('member-schedule').value = '';
+            document.getElementById('payment-method').value = '';
+            show('section-menu');
+        } catch (e) { alert("Error al guardar"); }
+    };
+
+    window.loadAdminReport = async () => {
+        const passAdmin = prompt("Introduce la clave de Jefe:");
+        if (passAdmin !== "2026") return alert("Clave incorrecta");
+    
+        show('section-admin');
+        
+        // Cargar ventas
+        await loadSalesReport();
+        // Cargar inscripciones
+        await loadEnrollmentReport();
+    };
+
+    async function loadSalesReport() {
+        const display = document.getElementById('admin-sales-data');
+        display.innerHTML = "<p>Cargando registros...</p>";
+        
+        try {
+            const q = query(collection(db, "ventas"), orderBy("fecha", "desc"));
+            const querySnapshot = await getDocs(q);
+            
+            let html = "";
+            let ultimaFecha = "";
+            let totalDia = 0;
+    
+            querySnapshot.forEach((documento) => {
+                const data = documento.data();
+                const id = documento.id;
+                const fechaDia = data.fecha.split(',')[0]; 
+                const precio = data.precio || 0;
+    
+                if (fechaDia !== ultimaFecha) {
+                    if (ultimaFecha !== "") {
+                        html += `<div style="text-align:right; color:#00ff00; font-weight:bold; margin-bottom:10px;">TOTAL DÍA: $${totalDia}</div><hr>`;
+                    }
+                    html += `<div style="background:#444; padding:5px; margin-top:10px; border-radius:3px; font-weight:bold; color:#ff4444;">📅 ${fechaDia}</div>`;
+                    ultimaFecha = fechaDia;
+                    totalDia = 0;
+                }
+    
+                totalDia += precio;
+                
+                html += `<div style='padding:8px; border-bottom:1px solid #333; font-size:13px; display:flex; justify-content:space-between; align-items:center;'>
+                            <span>🛒 ${data.item} - $${precio}</span>
+                            <button onclick="deleteSale('${id}')" style="width:30px; padding:2px; background:red; font-size:10px; margin:0; border-radius:3px; cursor:pointer;">X</button>
+                         </div>`;
+            });
+    
+            if (ultimaFecha !== "") {
+                html += `<div style="text-align:right; color:#00ff00; font-weight:bold; margin-top:10px;">TOTAL DÍA: $${totalDia}</div>`;
+            }
+    
+            display.innerHTML = html || "<p style='color:#999;'>No hay ventas.</p>";
+        } catch (e) { console.error(e); }
+    }
+
+    async function loadEnrollmentReport() {
+        const display = document.getElementById('admin-enroll-data');
+        display.innerHTML = "<p>Cargando registros...</p>";
+        
+        try {
+            const q = query(collection(db, "inscripciones"), orderBy("fechaPago", "desc"));
+            const querySnapshot = await getDocs(q);
+            
+            // Obtener el primer y último día del mes actual
+            const hoy = new Date();
+            const primerDia = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+            const ultimoDia = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
+            
+            let html = "";
+            let totalMes = 0;
+            let countMes = 0;
+            
+            querySnapshot.forEach((documento) => {
+                const data = documento.data();
+                const fechaPago = new Date(data.fechaPago);
+                
+                // Verificar si está dentro del mes actual
+                if (fechaPago >= primerDia && fechaPago <= ultimoDia) {
+                    totalMes += data.pago;
+                    countMes++;
+                    
+                    html += `<div style='padding:8px; border-bottom:1px solid #333; font-size:12px;'>
+                                <strong>${data.nombre}</strong><br>
+                                💵 $${data.pago} - ${data.metodo}<br>
+                                🕐 ${data.horario}<br>
+                                📅 ${data.fechaPago}
+                             </div>`;
+                }
+            });
+            
+            html += `<div class="total-box">
+                        📊 Total Inscripciones: ${countMes}<br>
+                        💰 Total del Mes: $${totalMes}
+                     </div>`;
+            
+            display.innerHTML = html || "<p style='color:#999;'>No hay inscripciones este mes.</p>";
+        } catch (e) { console.error(e); }
+    }
+
+    window.deleteSale = async (id) => {
+        if (confirm("¿Seguro que quieres borrar esta venta?")) {
+            try {
+                await deleteDoc(doc(db, "ventas", id));
+                alert("Venta eliminada");
+                loadSalesReport();
+            } catch (e) {
+                alert("Error al borrar");
+            }
+        }
+    };
+    </script>
+
 </body>
 </html>
